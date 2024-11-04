@@ -13,9 +13,7 @@ class Map extends StatefulWidget{
 class _Map extends State<Map>{
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: FlutterMap(
+    return FlutterMap(
           options: MapOptions(
             initialCenter: LatLng(43.94529387752341, -78.89694830522029),
             initialZoom: 18.5,
@@ -34,9 +32,7 @@ class _Map extends State<Map>{
               ],
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
 }
