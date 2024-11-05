@@ -62,18 +62,7 @@ class _Map extends State<Map>{
                 ),
               ],
             ),
-            FutureBuilder(future: getPath(43.944953, -78.896885,43.839757, -79.279427),
-                builder: (BuildContext context, AsyncSnapshot snapshot){
-                  if(snapshot.hasData){
-                    print(snapshot.data);
-                    return FlutterMap.PolylineLayer(
-                      polylines: snapshot.data,
-                    );
-                  }
-                  else{
-                    return CircularProgressIndicator();
-                  }
-                }),
+            // FutureBuilder(futus
           ],
         );
   }

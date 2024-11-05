@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:final_project/PostPage.dart';
 import 'Map.dart';
 
 class MapPage extends StatefulWidget{
@@ -23,7 +23,21 @@ class _MapPage extends State<MapPage>{
               // Map()
               ]
           ),
-          Container(height: 100,color: Colors.grey,)
+          Container(height: 100,color: Colors.grey,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                FloatingActionButton(onPressed: (){
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context)=> PostPage())
+                  );
+                }, child: Icon(Icons.view_day),),
+                FloatingActionButton(onPressed: (){
+
+                }, child: Icon(Icons.person),),
+              ],
+            )
+          )
         ],
       ),
     );
