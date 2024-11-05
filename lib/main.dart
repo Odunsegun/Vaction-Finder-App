@@ -1,9 +1,16 @@
 import 'package:final_project/MapPage.dart';
+import 'package:final_project/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'MapPage.dart';
 import 'Map.dart';
 
-void main() {
+Future<void> main() async {
+  //initialize firebase database
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
   runApp(const MyApp());
 }
 
