@@ -1,9 +1,9 @@
-import 'package:final_project/MapPage.dart';
+import 'package:final_project/map/MapPage.dart';
 import 'package:final_project/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'MapPage.dart';
-import 'Map.dart';
+import 'map/MapPage.dart';
+import 'map/Map.dart';
 
 Future<void> main() async {
   //initialize firebase database
