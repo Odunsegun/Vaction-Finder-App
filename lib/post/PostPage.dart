@@ -1,3 +1,4 @@
+import 'package:final_project/post/PostWidget.dart';
 import 'package:flutter/material.dart';
 
 class PostPage extends StatefulWidget{
@@ -13,7 +14,12 @@ class _PostPage extends State<PostPage>{
       appBar: AppBar(
         title: Text("Posts"),
       ),
-      body: Column(),
+      body: ListView.builder(
+        itemCount: 2,
+          itemBuilder: (BuildContext context, int index){
+            return PostWidget();
+          }
+      ),
     );
   }
 
