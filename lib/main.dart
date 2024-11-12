@@ -16,7 +16,14 @@ import 'LoginPage.dart';
 // }
 
 
-void main() => runApp(MyApp());
+Future<void> main()async {
+  //initialize firebase database
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

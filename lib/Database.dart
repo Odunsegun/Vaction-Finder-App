@@ -1,3 +1,4 @@
+import 'package:final_project/Account.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'post/Post.dart';
@@ -15,5 +16,30 @@ class Database{
   }
   Future<void> insertItem(String collection,dynamic item)async{
     database.collection(collection).add(item.toMap());
+  }
+
+  Future<Account?> getUser(String username, String password) async{
+    var snapshots = await database.collection("users").where('username',isEqualTo: username).get();
+    for(var doc in snapshots.docs){
+      if(doc.get('password') != password){
+        return null;
+      }
+      else {
+        print(doc.data());
+        return Account.fromMap(doc.data());
+        // return Account("email", "password");
+        // return Account.fromMap(doc.data());
+      }
+    }
+    return null;
+  }
+
+  Future<void> insertUser(String username, String password) async{
+    await database.collection('users').add(
+      {
+        'username': username,
+        'password': password,
+      }
+    );
   }
 }

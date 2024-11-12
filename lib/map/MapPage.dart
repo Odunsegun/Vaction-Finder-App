@@ -38,13 +38,15 @@ class _MapPage extends State<MapPage>{
             // clipBehavior: Clip.hardEdge,
             children: <Widget>[
               SizedBox(height: MediaQuery.sizeOf(context).height-60,child: map,),
-              Container(padding:EdgeInsets.only(top:50,left: 10),
-                child: Text("Current Location: ${currentLoc}", style: TextStyle(fontSize: 16),),
-              ),
-              Container(padding:EdgeInsets.only(top:75,left: 10),
+              Container(padding:EdgeInsets.only(top:MediaQuery.sizeOf(context).height-85,left: 10),
                 child: Text("Latitude: $currentLat, Longitude: $currentLng", style: TextStyle(fontSize: 16),),
               ),
-              Container(padding:EdgeInsets.only(top:100,left: 10,right: 10),
+              Container(padding: EdgeInsets.only(top: 120,left: MediaQuery.sizeOf(context).width-75),child:IconButton(onPressed: () {
+                print("${null}");
+              },
+              icon:Icon(Icons.bookmark_border, size: 40,))
+              ),
+              Container(padding:EdgeInsets.only(top:65,left: 10,right: 10),
                   child: GooglePlaceAutoCompleteTextField(
                     isLatLngRequired: true,
                     inputDecoration: InputDecoration(
@@ -59,6 +61,7 @@ class _MapPage extends State<MapPage>{
                     countries: ['ca'],
                     getPlaceDetailWithLatLng: (Prediction prediction){
                       print('lat=${prediction.lat}, lng=${prediction.lng}');
+                      print("${prediction.placeId}");
                       setState(() {
                         currentLat = double.parse(prediction.lat!);
                         currentLng = double.parse(prediction.lng!);
@@ -70,7 +73,7 @@ class _MapPage extends State<MapPage>{
                     },
                     itemClick: (Prediction prediction){
                       setState(() {
-                        controller.text = "";
+                        controller.text = prediction.description!;
                         currentLoc = prediction.description;
                       });
                       // print(prediction.placeId);

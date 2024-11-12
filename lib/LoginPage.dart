@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'Account.dart';
 import 'HomePage.dart';
-
+import 'package:final_project/Database.dart';
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -10,6 +11,22 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  late Account currentUser;
+
+  Database database = Database();
+
+  Future<bool> validateLogin(String username, String password) async{
+    var accountMap = await database.getUser(username, password);
+    if(accountMap == null) {
+      return false;
+    }
+    else {
+      currentUser = accountMap;
+      print("TEST USER: ${currentUser}");
+      return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +69,27 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                    // If the form is valid, proceed to the HomeScreen
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
-                    );
+                    print("LOGGING IN............................................................");
+                    print("USERNAME: ${_usernameController.text}, PASSWORD: ${_passwordController.text}");
+                    if(!await validateLogin(_usernameController.text,_passwordController.text)){
+                      showDialog(context: context,
+                          builder: (BuildContext context)=> AlertDialog(
+                            title: Text("INVALID Username and Password"),
+                            actions: [
+                              TextButton(onPressed: ()=>Navigator.pop(context, 'OK'), child: Text("OK"))
+                            ],
+                          )
+                      );
+                    }
+                    else{
+                      // If the form is valid, proceed to the HomeScreen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
+                    }
                   }
                 },
                 child: Text('Login'),
