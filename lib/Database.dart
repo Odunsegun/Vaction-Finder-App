@@ -27,7 +27,7 @@ class Database{
       else {
         print(doc.data());
         if(doc.data() == null){return null;}
-        return Account.fromMap(doc.data());
+        return Account.fromMap(doc.data(), doc.reference);
         // return Account("email", "password");
         // return Account.fromMap(doc.data());
       }
@@ -35,22 +35,23 @@ class Database{
     return null;
   }
 
-  Future<void> insertUser(String username, String password) async{
+  Future<void> insertUser(Account acc) async{
     await database.collection('users').add(
-      {
-        'username': username,
-        'password': password,
-      }
+        acc.toMap()
     );
   }
-  Future<bool> registerUser(String username, String password) async{
-    var snapshots = await database.collection('users').where('username', isEqualTo: username).get();
+  Future<bool> registerUser(Account acc) async{
+    var snapshots = await database.collection('users').where('username', isEqualTo: acc.username).get();
     if(snapshots.size != 0){
       return false;
     }
     else {
-      insertUser(username, password);
+      insertUser(acc);
       return true;
     }
+  }
+  Future<void> addBookmark(Account account) async{
+    // print("${reference.get()}");
+    await account.reference?.update(account.toMap());
   }
 }

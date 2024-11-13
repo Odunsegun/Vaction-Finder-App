@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'Account.dart';
 import 'HomePage.dart';
 import 'package:final_project/Database.dart';
@@ -28,8 +29,8 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<bool> registerUser(String username, String password) async{
-    return database.registerUser(username, password);
+  Future<bool> registerUser(Account acc) async{
+    return database.registerUser(acc);
   }
 
   @override
@@ -88,10 +89,11 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     }
                     else{
+                      currentUser = (await database.getUser(_usernameController.text, _passwordController.text))!;
                       // If the form is valid, proceed to the HomeScreen
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                        MaterialPageRoute(builder: (context)  => HomeScreen(currentUser)),
                       );
                     }
                   }
@@ -99,7 +101,8 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text('Login'),
               ),
               ElevatedButton(onPressed: ()async {
-                if(!await registerUser(_usernameController.text, _passwordController.text)){
+                currentUser = Account(_usernameController.text, _passwordController.text);
+                if(!await registerUser(currentUser)){
                   showDialog(context: context, builder: (context)=>AlertDialog(
                     title: const Text('ERROR: Username already exists.'),
                     actions: [
@@ -108,7 +111,8 @@ class _LoginPageState extends State<LoginPage> {
                   ));
                 }
                 else{
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+                  currentUser = (await database.getUser(_usernameController.text, _passwordController.text))!;
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen(currentUser)));
                 }
               }, child: const Text("Register user"))
             ],

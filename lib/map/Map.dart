@@ -10,7 +10,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'l'
 class Map extends StatefulWidget{
   FlutterMap.MapController camera;
-  Map(this.camera, {super.key}){
+  double curLat;
+  double curLong;
+  Map(this.camera, {this.curLat = 43.94529387752341, this.curLong=-78.89694830522029,super.key}){
     // camera = FlutterMap.MapController();
     Google.GoogleMapsDirections.init(googleAPIKey: "AIzaSyCS61S7nUwtNxf9elJwRJrA_hYsS_C42lM");
   }
@@ -19,6 +21,15 @@ class Map extends StatefulWidget{
 }
 
 class _Map extends State<Map>{
+  late double curLong;
+  late double curLat;
+  @override
+  void initState(){
+    super.initState();
+    curLong = widget.curLong;
+    curLat = widget.curLat;
+  }
+
   Future<List<FlutterMap.Polyline>> getPath(double p1Lat,double p1Long,double p2Lat,double p2Long) async{
 
     Google.Directions directions = await Google.getDirections(p1Lat, p1Long, p2Lat, p2Long);
@@ -38,8 +49,8 @@ class _Map extends State<Map>{
   @override
   Widget build(BuildContext context) {
     return FlutterMap.FlutterMap(
-          options: const FlutterMap.MapOptions(
-            initialCenter: Lat.LatLng(43.94529387752341, -78.89694830522029),
+          options: FlutterMap.MapOptions(
+            initialCenter: Lat.LatLng(curLat, curLong),
             initialZoom: 18.5,
           ),
           mapController: widget.camera,

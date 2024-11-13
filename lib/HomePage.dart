@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'Account.dart';
 import 'AccountPages.dart';
 import 'SavedPlaces.dart';
 import 'package:final_project/post/PostPage.dart';
 import 'package:final_project/map/MapPage.dart';
 
 class HomeScreen extends StatefulWidget {
+  Account user;
+  HomeScreen(this.user, {super.key});
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    MapPage(),
-    PostPage(),
-    SavedPlacesPage(),
-    AccountPage(),
-  ];
+  late List<Widget> _pages;
+  @override
+  void initState(){
+    super.initState();
+    _pages = [
+      MapPage(widget.user),
+      PostPage(),
+      SavedPlacesPage(widget.user.username),
+      AccountPage(),
+    ];
+  }
 
   final List<String> pageName = [
     'Home',
