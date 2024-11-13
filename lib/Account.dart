@@ -1,18 +1,18 @@
 class Account{
-  late String email;
+  late String username;
   late String password;
 
-  Account(this.email,this.password);
+  Account(this.username,this.password);
 
   Map<String, dynamic> toMap(){
     return {
-      'email':email,
+      'username':username,
       'password':password
     };
   }
 
   Account.fromMap(Map<String,dynamic> map){
-    email = map['email'];
+    username = map['username'];
     password = map['password'];
   }
 }

@@ -28,6 +28,10 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<bool> registerUser(String username, String password) async{
+    return database.registerUser(username, password);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,6 +98,19 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: Text('Login'),
               ),
+              ElevatedButton(onPressed: ()async {
+                if(!await registerUser(_usernameController.text, _passwordController.text)){
+                  showDialog(context: context, builder: (context)=>AlertDialog(
+                    title: const Text('ERROR: Username already exists.'),
+                    actions: [
+                      TextButton(onPressed: ()=>Navigator.pop(context, 'OK'), child: const Text("OK"))
+                    ],
+                  ));
+                }
+                else{
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+                }
+              }, child: const Text("Register user"))
             ],
           ),
         ),

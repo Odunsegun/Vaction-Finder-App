@@ -83,6 +83,12 @@ class _MapPage extends State<MapPage>{
                     placeType: PlaceType.geocode,
                   )
               ),
+              Container(
+                color: Color.fromARGB(100, 1, 1, 1),
+                width: 100,
+                height: 100,
+                padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-100),
+              )
               // Map()
               ]
           ),

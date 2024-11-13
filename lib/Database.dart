@@ -26,6 +26,7 @@ class Database{
       }
       else {
         print(doc.data());
+        if(doc.data() == null){return null;}
         return Account.fromMap(doc.data());
         // return Account("email", "password");
         // return Account.fromMap(doc.data());
@@ -41,5 +42,15 @@ class Database{
         'password': password,
       }
     );
+  }
+  Future<bool> registerUser(String username, String password) async{
+    var snapshots = await database.collection('users').where('username', isEqualTo: username).get();
+    if(snapshots.size != 0){
+      return false;
+    }
+    else {
+      insertUser(username, password);
+      return true;
+    }
   }
 }
