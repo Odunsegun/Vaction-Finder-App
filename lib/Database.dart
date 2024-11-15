@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'post/Post.dart';
 import 'package:location/location.dart' as deviceLocation;
 import 'package:final_project/map/Location.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 class Database{
@@ -70,7 +72,7 @@ class Database{
   }
 
   //add, delete and edit posts in firestore
-  Future<void> addPost(Post post) async {
+/*  Future<void> addPost(Post post) async {
     await database.collection('posts').add(post.toMap());
   }
 
@@ -80,5 +82,48 @@ class Database{
 
   Future<void> deletePost(String postId) async {
     await database.collection('posts').doc(postId).delete();
+  }
+  */
+    // Fetch posts from an API
+  Future<List<Post>> fetchPosts() async {
+    var response = await http.get(Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'));//link to our firebase project
+    if (response.statusCode == 200) {
+      List postItems = jsonDecode(response.body);
+      return postItems.map((item) => Post.fromMap(item)).toList();
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
+
+  // Add a post to the API
+  Future<void> addPost(Post post) async {
+    var response = await http.post(
+      Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(post.toMap()),
+    );
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add post');
+    }
+  }
+
+  // Update a post in the API
+  Future<void> updatePost(String id, Post post) async {
+    var response = await http.put(
+      Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(post.toMap()),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update post');
+    }
+  }
+
+  // Delete a post in the API
+  Future<void> deletePost(String id) async {
+    var response = await http.delete(Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete post');
+    }
   }
 }
