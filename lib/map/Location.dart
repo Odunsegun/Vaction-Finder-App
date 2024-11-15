@@ -12,4 +12,12 @@ class Location{
       'longitude': longitude,
     };
   }
+
+  factory Location.fromMap(Map<String, dynamic> map) { //for 
+    return Location(
+      map['name'],
+      map['latitude'],
+      map['longitude'],
+    );
+  }
 }

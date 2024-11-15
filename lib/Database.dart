@@ -2,6 +2,8 @@ import 'package:final_project/Account.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'post/Post.dart';
+import 'package:location/location.dart' as deviceLocation;
+import 'package:final_project/map/Location.dart';
 
 
 class Database{
@@ -53,5 +55,30 @@ class Database{
   Future<void> addBookmark(Account account) async{
     // print("${reference.get()}");
     await account.reference?.update(account.toMap());
+  }
+
+  Future<List<Location>> getRecommendedLocations(String type) async {
+    var snapshots = await database.collection('locations')
+        .where('type', isEqualTo: type)
+        .get();
+    return snapshots.docs.map((doc) => Location.fromMap(doc.data())).toList();
+  }
+
+  Future<List<Post>> getPosts() async {
+    var snapshots = await database.collection('posts').get();
+    return snapshots.docs.map((doc) => Post.fromMap(doc.data(), doc.id)).toList();
+  }
+
+  //add, delete and edit posts in firestore
+  Future<void> addPost(Post post) async {
+    await database.collection('posts').add(post.toMap());
+  }
+
+  Future<void> updatePost(String postId, Map<String, dynamic> updatedData) async {
+    await database.collection('posts').doc(postId).update(updatedData);
+  }
+
+  Future<void> deletePost(String postId) async {
+    await database.collection('posts').doc(postId).delete();
   }
 }

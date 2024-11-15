@@ -11,11 +11,10 @@ class _PostWidget extends State<PostWidget>{
   Widget build(BuildContext context) {
     return Container(
       color: Colors.blueGrey,
-      child: Column(
+      child: const Column(
         children: [
           Text("userID"),
           Text("locationName"),
-          Text("imageURL"),
           Text("description"),
           Divider(height: 15,thickness: 10,color: Colors.black38,),
         ],
