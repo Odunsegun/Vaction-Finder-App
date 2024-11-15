@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import 'Post.dart';
 
-class PostWidget extends StatefulWidget{
-  @override
-  State<StatefulWidget> createState() => _PostWidget();
+class PostWidget extends StatelessWidget {
+  final Post post;
 
-}
+  PostWidget({required this.post});
 
-class _PostWidget extends State<PostWidget>{
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.blueGrey,
-      child: const Column(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("userID"),
-          Text("locationName"),
-          Text("description"),
-          Divider(height: 15,thickness: 10,color: Colors.black38,),
+          Text('User: ${post.userID}'),
+          Text('Location: ${post.location.name}'),
+          Text('Description: ${post.description}'),
+          Divider(height: 15, thickness: 1, color: Colors.black38),
         ],
       ),
     );
