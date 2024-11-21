@@ -85,7 +85,7 @@ class Database{
   }
   */
     // Fetch posts from an API
-  Future<List<Post>> fetchPosts() async {
+  Future<List<Post>> fetchPosts({int limit = 10, int offset = 0}) async {
     var response = await http.get(Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'));//link to our firebase project
     if (response.statusCode == 200) {
       List postItems = jsonDecode(response.body);

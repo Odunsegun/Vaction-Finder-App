@@ -30,8 +30,11 @@ class _PostFormPageState extends State<PostFormPage> {
     await database.addPost(post);
   }
 
-  Future<void> updatePost(String postId, Map<String, dynamic> updatedData) async {
-    await database.updatePost(postId, updatedData);
+  /*Future<void> updatePost(String postId, Map<String, dynamic> updatedData) async {
+    await database.updatePost(postId, post);
+  }*/
+  Future<void> updatePost(Post post) async {
+    await database.updatePost(post.id!, post);
   }
 
   Future<void> deletePost(String postId) async {
@@ -58,26 +61,33 @@ class _PostFormPageState extends State<PostFormPage> {
             ElevatedButton(
               onPressed: () async {
                 if (isEditing) {
-                  // Update post if editing
-                  Map<String, dynamic> updatedData = {
-                    "description": descriptionController.text,
-                  };
-                  await updatePost(widget.postId!, updatedData);
+                  // Create an updated Post object
+                  Post updatedPost = Post(
+                    userID: widget.post!.userID, 
+                    location: widget.post!.location, 
+                    description: descriptionController.text, 
+                  );
+
+                  // Call updatePost with the updated Post object
+                  await updatePost(updatedPost);
                 } else {
-                  // Create new post if adding
-                  String userID = "UserID";
+                  // Create a new post if adding
+                  String userID = "UserID"; // Replace with actual user ID
                   Post newPost = Post(
                     userID: userID,
                     location: Location("Location", 43.0, -79.0),
                     description: descriptionController.text,
                   );
-                  await addPost(newPost);
+
+                  // Call addPost for the new post
+                  await database.addPost(newPost);
                 }
 
                 Navigator.pop(context);
               },
               child: Text(isEditing ? "Update Post" : "Add Post"),
             ),
+
             if (isEditing) ...[
               SizedBox(height: 20),
               ElevatedButton(
