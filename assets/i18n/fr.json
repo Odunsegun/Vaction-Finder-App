@@ -1,0 +1,48 @@
+{
+    "app_title": "Application de Carte et de Post",
+    "login": {
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "login_button": "Connexion",
+      "register_button": "Créer un compte",
+      "invalid_credentials": "Nom d'utilisateur ou mot de passe invalide",
+      "already_exists": "ERREUR : Le nom d'utilisateur existe déjà."
+    },
+    "home": {
+      "welcome": "Bienvenue dans l'application!",
+      "posts_tab": "Publications",
+      "map_tab": "Carte",
+      "account_tab": "Compte"
+    },
+    "map": {
+      "current_location": "Emplacement actuel :",
+      "latitude": "Latitude :",
+      "longitude": "Longitude :",
+      "bookmark_added": "Favori ajouté avec succès!",
+      "bookmark_error": "Échec de l'ajout du favori. Réessayez.",
+      "search_placeholder": "Recherchez un lieu..."
+    },
+    "post": {
+      "no_posts": "Aucune publication disponible.",
+      "add_post": "Ajouter une publication",
+      "edit_post": "Modifier la publication",
+      "delete_post": "Supprimer la publication",
+      "delete_confirmation": "Êtes-vous sûr de vouloir supprimer cette publication?",
+      "description": "Description",
+      "location": "Lieu :",
+      "user": "Utilisateur :"
+    },
+    "account": {
+      "email": "E-mail :",
+      "phone_number": "Numéro de téléphone",
+      "add_number": "Ajouter un numéro",
+      "logout": "Déconnexion",
+      "logout_confirmation": "Êtes-vous sûr de vouloir vous déconnecter?"
+    },
+    "button_label": {
+      "save": "Sauvegarder",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    }
+  }
+  
