@@ -2,6 +2,7 @@ import 'package:final_project/Database.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/post/PostPage.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_places_flutter/model/place_type.dart';
 import 'package:google_places_flutter/model/prediction.dart';
 import 'package:latlong2/latlong.dart';
@@ -28,6 +29,8 @@ class _MapPage extends State<MapPage>{
   double? currentLat;
   double? currentLng;
   String? currentPlaceID = "";
+  double deviceLat = 43.94529387752341;
+  double deviceLong = -78.89694830522029;
   late Map map;
 
   Database database = Database();
@@ -53,11 +56,35 @@ class _MapPage extends State<MapPage>{
     super.initState();
     mapController = MapController();
     fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour
+
   }
 
+  Future<Position> getCurrentPosition() async{
+    bool serviceEnabled;
+    LocationPermission locationPermission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("service = $serviceEnabled\n");
+    if(!serviceEnabled){
+      return Future.error('Location services disabled.');
+    }
+    locationPermission = await Geolocator.checkPermission();
+    print("locPERM = $locationPermission\n");
+    if(locationPermission == LocationPermission.denied){
+      locationPermission = await Geolocator.requestPermission();
+      if(locationPermission == LocationPermission.denied){
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if(locationPermission == LocationPermission.deniedForever){
+      return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+    }
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,);
+  }
   @override
   Widget build(BuildContext context) {
-    map = Map(mapController);
+    map = Map(mapController, curLat: deviceLat, curLong: deviceLong,);
     return Scaffold(
       body: Column(
         children: [
@@ -177,6 +204,17 @@ class _MapPage extends State<MapPage>{
 
                   },
                   icon: const Icon(Icons.assistant_direction,size: 30,),),),
+              Container(
+                padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-265),
+                child:IconButton(
+                  onPressed: () async {
+                    Position pos = await getCurrentPosition();
+                    setState(() {
+                      mapController.move(LatLng(pos.latitude,pos.longitude), 18.5);
+                      print("LAT = $deviceLat, LONG = $deviceLong");
+                    });
+                  },
+                  icon: const Icon(Icons.my_location,size: 30,),),),
               // Map()
               ]
           ),
