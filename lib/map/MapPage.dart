@@ -8,11 +8,14 @@ import 'package:latlong2/latlong.dart';
 import '../Account.dart';
 import 'Map.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
+import 'package:location/location.dart' as deviceLocation;
+import 'package:final_project/map/Location.dart';
 
 
 class MapPage extends StatefulWidget{
   Account user;
   MapPage(this.user, {super.key});
+
 
   @override
   State<StatefulWidget> createState() => _MapPage();
@@ -29,11 +32,29 @@ class _MapPage extends State<MapPage>{
 
   Database database = Database();
 
+  List<Marker> recommendedLocationMarkers = [];//list of location markers
+
+  Future<void> fetchAndDisplayRecommendedLocations(String type) async {
+    List<Location> locations = await database.getRecommendedLocations(type);
+    setState(() {
+      recommendedLocationMarkers = locations.map((location) {
+        return Marker(
+          width: 80.0,
+          height: 80.0,
+          point: LatLng(location.latitude, location.longitude),
+          child: Icon(Icons.location_pin, color: Colors.red, size: 40),
+        );
+      }).toList();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     mapController = MapController();
+    fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour
   }
+
   @override
   Widget build(BuildContext context) {
     map = Map(mapController);
@@ -43,8 +64,32 @@ class _MapPage extends State<MapPage>{
           Stack(
             // clipBehavior: Clip.hardEdge,
             children: <Widget>[
-              SizedBox(height: MediaQuery.sizeOf(context).height-60,child: map,),
-              Container(padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height-225,left: MediaQuery.sizeOf(context).width-75),child:IconButton(onPressed: () {
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height-60,
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: LatLng(currentLat ?? 43.65107, currentLng ?? -79.347015,),
+                    initialZoom: 18.5,
+                  ),
+                  mapController: mapController,
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',//free server URL
+                      userAgentPackageName: 'com.example.app',
+                    ),
+                    MarkerLayer(
+                      markers: recommendedLocationMarkers,
+                    ),
+                  ],
+                ),
+//map,
+              ),
+              Container(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.sizeOf(context).height-225,
+                  left: MediaQuery.sizeOf(context).width-75
+                ),
+                child:IconButton(onPressed: () {
                   if(currentPlaceID!.isNotEmpty){
                     print('Bookmarked...................');
                     
@@ -64,14 +109,15 @@ class _MapPage extends State<MapPage>{
                     );
                   }
                 },
-              icon:Icon(Icons.bookmark_border, size: 40,))
+              icon:Icon(Icons.bookmark_border, size: 40),)
               ),
               Container(
                 padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-175,left: 10),
-                // color: Color.fromARGB(150, 1, 1, 1),
-                // width: 1000,
-                // height: 10,
+                  // color: Color.fromARGB(150, 1, 1, 1),
+                  // width: 1000,
+                  // height: 10,
                 child: Container(
+                 
                   child: Column(
                     children: [
                       Text('Current Location:',style: TextStyle(fontSize: 18)),
@@ -83,7 +129,10 @@ class _MapPage extends State<MapPage>{
                   width: MediaQuery.sizeOf(context).width-20,
                 ),
               ),
-              Container(padding:EdgeInsets.only(top:65,left: 10,right: 10),
+              Container(
+                padding:EdgeInsets.only(
+                  top:65, left: 10, right: 10
+                  ),
                   child: GooglePlaceAutoCompleteTextField(
                     isLatLngRequired: true,
                     inputDecoration: InputDecoration(
@@ -135,5 +184,4 @@ class _MapPage extends State<MapPage>{
       ),
     );
   }
-
 }
