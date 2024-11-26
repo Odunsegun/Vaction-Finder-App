@@ -121,6 +121,13 @@ class _MapPage extends State<MapPage>{
                     placeType: PlaceType.geocode,
                   )
               ),
+              Container(
+                padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-220),
+                child:IconButton(
+                  onPressed: (){
+
+                  },
+                  icon: const Icon(Icons.assistant_direction,size: 30,),),),
               // Map()
               ]
           ),
