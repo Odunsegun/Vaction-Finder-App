@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as FlutterMap;
 import 'package:flutter_map/flutter_map.dart';
@@ -13,11 +14,15 @@ class Map extends StatefulWidget{
   FlutterMap.MapController camera;
   double curLat;
   double curLong;
+  (double,double,double,double)? path;
 
-  Map(this.camera, {this.curLat = 43.94529387752341, this.curLong=-78.89694830522029,super.key}){
+  Map(this.camera, {this.curLat = 43.94529387752341, this.curLong=-78.89694830522029, this.path, super.key}){
     // camera = FlutterMap.MapController();
     Google.GoogleMapsDirections.init(googleAPIKey: "AIzaSyCS61S7nUwtNxf9elJwRJrA_hYsS_C42lM");
   }
+  // Future<FlutterMap.PolylineLayer> getPolylineLayer() async{
+  //
+  // }
   @override
   State<StatefulWidget> createState() => _Map();
 }
@@ -25,11 +30,15 @@ class Map extends StatefulWidget{
 class _Map extends State<Map>{
   late double curLong;
   late double curLat;
+  (double,double,double,double)? path;
+
   @override
   void initState(){
     super.initState();
     curLong = widget.curLong;
     curLat = widget.curLat;
+    path = widget.path;
+    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
   }
 
   Future<List<FlutterMap.Polyline>> getPath(double p1Lat,double p1Long,double p2Lat,double p2Long) async{
@@ -45,8 +54,12 @@ class _Map extends State<Map>{
         borderStrokeWidth: 5
       )
     ];
+    setState(() {
+
+    });
     return polylines;
   }
+
 
   Future<Position> getCurrentPosition() async{
     bool serviceEnabled;
@@ -69,8 +82,13 @@ class _Map extends State<Map>{
     return await Geolocator.getCurrentPosition();
   }
 
+  // Future<FlutterMap.PolylineLayer> getPolylineLayer() async{
+  //
+  // }
+
   @override
   Widget build(BuildContext context) {
+    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     return FlutterMap.FlutterMap(
           options: FlutterMap.MapOptions(
             initialCenter: Lat.LatLng(curLat, curLong),
@@ -93,7 +111,20 @@ class _Map extends State<Map>{
                 ),
               ],
             ),
-            // if(false) FlutterMap.PolylineLayer(polylines: null),
+            if(path!=null) FutureBuilder(future: getPath(path!.$1, path!.$2,path!.$3,path!.$4), builder: (context,snapshot){
+              print("BUILD");
+              if(snapshot.data != null) {
+                return FlutterMap.PolylineLayer(
+                  polylines: snapshot.data!
+                );
+              }
+              else{
+                return const SizedBox.shrink();
+              }
+            }),
+            // if(path != null) FlutterMap.PolylineLayer(
+            //   polylines: await getPath(curLat, curLong, path!.$1, path!.$1),
+            // )
           ],
         );
   }

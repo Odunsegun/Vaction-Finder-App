@@ -32,6 +32,7 @@ class _MapPage extends State<MapPage>{
   double deviceLat = 43.94529387752341;
   double deviceLong = -78.89694830522029;
   late Map map;
+  (double,double,double,double)? path;
 
   Database database = Database();
 
@@ -55,8 +56,8 @@ class _MapPage extends State<MapPage>{
   void initState() {
     super.initState();
     mapController = MapController();
-    fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour
-
+    fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    map = Map(mapController, curLat: deviceLat, curLong: deviceLong,path: path,);
   }
 
   Future<Position> getCurrentPosition() async{
@@ -84,7 +85,6 @@ class _MapPage extends State<MapPage>{
   }
   @override
   Widget build(BuildContext context) {
-    map = Map(mapController, curLat: deviceLat, curLong: deviceLong,);
     return Scaffold(
       body: Column(
         children: [
@@ -93,23 +93,8 @@ class _MapPage extends State<MapPage>{
             children: <Widget>[
               SizedBox(
                 height: MediaQuery.sizeOf(context).height-60,
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: LatLng(currentLat ?? 43.65107, currentLng ?? -79.347015,),
-                    initialZoom: 18.5,
-                  ),
-                  mapController: mapController,
-                  children: [
-                    TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',//free server URL
-                      userAgentPackageName: 'com.example.app',
-                    ),
-                    MarkerLayer(
-                      markers: recommendedLocationMarkers,
-                    ),
-                  ],
-                ),
-//map,
+                child: map,
+//map
               ),
               Container(
                 padding: EdgeInsets.only(
@@ -200,9 +185,15 @@ class _MapPage extends State<MapPage>{
               Container(
                 padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-220),
                 child:IconButton(
-                  onPressed: (){
-
-                  },
+                  onPressed: () async{
+                    Position pos = await getCurrentPosition();
+                      if(currentLat!= null && currentLng!=null){
+                        double lat = currentLat!;
+                        double lng = currentLng!;
+                        setState(() {
+                          map = Map(mapController,curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
+                        });
+                      }},
                   icon: const Icon(Icons.assistant_direction,size: 30,),),),
               Container(
                 padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-265),
@@ -215,7 +206,6 @@ class _MapPage extends State<MapPage>{
                     });
                   },
                   icon: const Icon(Icons.my_location,size: 30,),),),
-              // Map()
               ]
           ),
         ],
