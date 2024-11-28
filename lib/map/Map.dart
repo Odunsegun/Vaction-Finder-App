@@ -35,6 +35,30 @@ class _Map extends State<Map>{
   FlutterMap.LayerHitNotifier hitNotifier = ValueNotifier(null);
   bool? showMarker;
   Lat.LatLng? markerLoc;
+  Future<List<FlutterMap.Polyline>>? polyPath;
+
+  @override
+  void activate(){
+    super.activate();
+    print("TEST");
+  }
+  @override
+  void didUpdateWidget(covariant Map oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print("DID UPDATE;");
+    updatePath(widget.path);
+  }
+
+  Future<void> updatePath((double,double,double,double)? path) async {
+    polyPath = getPath(
+    widget.path!.$1,
+    widget.path!.$2,
+    widget.path!.$3,
+    widget.path!.$4);
+    setState(() {
+
+    });
+  }
 
   @override
   void initState(){
@@ -42,6 +66,7 @@ class _Map extends State<Map>{
     curLong = widget.curLong;
     curLat = widget.curLat;
     path = widget.path;
+
     print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
   }
 
@@ -92,7 +117,7 @@ class _Map extends State<Map>{
 
   @override
   Widget build(BuildContext context) {
-    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    // print("path = ${widget.path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     return FlutterMap.FlutterMap(
           options: FlutterMap.MapOptions(
             initialCenter: Lat.LatLng(curLat, curLong),
@@ -126,7 +151,8 @@ class _Map extends State<Map>{
                 ),
               ],
             ),
-            if(path!=null) FutureBuilder(future: getPath(path!.$1, path!.$2,path!.$3,path!.$4), builder: (context,snapshot){
+            if(widget.path!=null) FutureBuilder(
+                future: polyPath, builder: (context,snapshot){
               print("BUILD");
               if(snapshot.data != null) {
                 return FlutterMap.PolylineLayer(

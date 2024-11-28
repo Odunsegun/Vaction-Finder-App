@@ -52,12 +52,19 @@ class _MapPage extends State<MapPage>{
     });
   }
 
-  void mapTapped(double lat,double long){
+  Future<void> mapTapped(double lat,double long) async {
     currentLat = lat;
     currentLng = long;
     setState(() {
 
     });
+    // Position pos = await getCurrentPosition();
+    // setState(() {
+    //   // print("TAPPED");
+    //   // map = Map(mapController, mapTapped,curLat:currentLat!, curLong: currentLng!,
+    //   //   path: (pos.latitude,pos.longitude,currentLat!,currentLng!),
+    //   // );
+    // });
   }
 
   @override
@@ -199,6 +206,7 @@ class _MapPage extends State<MapPage>{
                         double lat = currentLat!;
                         double lng = currentLng!;
                         setState(() {
+                          print("NAVIGATE: ${(pos.latitude,pos.longitude,lat,lng)}");
                           map = Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
                         });
                       }},
