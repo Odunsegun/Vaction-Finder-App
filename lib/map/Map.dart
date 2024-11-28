@@ -15,8 +15,9 @@ class Map extends StatefulWidget{
   double curLat;
   double curLong;
   (double,double,double,double)? path;
+  Function onLocChange;
 
-  Map(this.camera, {this.curLat = 43.94529387752341, this.curLong=-78.89694830522029, this.path, super.key}){
+  Map(this.camera, this.onLocChange,{this.curLat = 43.94529387752341, this.curLong=-78.89694830522029, this.path, super.key}){
     // camera = FlutterMap.MapController();
     Google.GoogleMapsDirections.init(googleAPIKey: "AIzaSyCS61S7nUwtNxf9elJwRJrA_hYsS_C42lM");
   }
@@ -31,6 +32,9 @@ class _Map extends State<Map>{
   late double curLong;
   late double curLat;
   (double,double,double,double)? path;
+  FlutterMap.LayerHitNotifier hitNotifier = ValueNotifier(null);
+  bool? showMarker;
+  Lat.LatLng? markerLoc;
 
   @override
   void initState(){
@@ -93,6 +97,17 @@ class _Map extends State<Map>{
           options: FlutterMap.MapOptions(
             initialCenter: Lat.LatLng(curLat, curLong),
             initialZoom: 18.5,
+            onMapEvent: (event){
+              if(event is FlutterMap.MapEventTap){
+                print("POS = ${event.tapPosition}");
+                widget.onLocChange(event.tapPosition.latitude,event.tapPosition.longitude);
+                showMarker = true;
+                markerLoc = event.tapPosition;
+                setState(() {
+
+                });
+              }
+            },
           ),
           mapController: widget.camera,
           // options: FlutterMap.MapOptions(onMapReady: (){
@@ -122,6 +137,11 @@ class _Map extends State<Map>{
                 return const SizedBox.shrink();
               }
             }),
+            if(showMarker == true) FlutterMap.MarkerLayer(
+                markers: [
+                  FlutterMap.Marker(point: markerLoc!, child: Icon(Icons.place, size: 40,))
+                ]
+            ),
             // if(path != null) FlutterMap.PolylineLayer(
             //   polylines: await getPath(curLat, curLong, path!.$1, path!.$1),
             // )

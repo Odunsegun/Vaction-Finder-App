@@ -52,12 +52,20 @@ class _MapPage extends State<MapPage>{
     });
   }
 
+  void mapTapped(double lat,double long){
+    currentLat = lat;
+    currentLng = long;
+    setState(() {
+
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     mapController = MapController();
     fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    map = Map(mapController, curLat: deviceLat, curLong: deviceLong,path: path,);
+    map = Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
   }
 
   Future<Position> getCurrentPosition() async{
@@ -191,7 +199,7 @@ class _MapPage extends State<MapPage>{
                         double lat = currentLat!;
                         double lng = currentLng!;
                         setState(() {
-                          map = Map(mapController,curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
+                          map = Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
                         });
                       }},
                   icon: const Icon(Icons.assistant_direction,size: 30,),),),
