@@ -23,10 +23,27 @@ class _PostPage extends State<PostPage>{
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            //return Center(child: Text("Error: ${snapshot.error}"));
+            return FutureBuilder<List<Post>>(
+              future: database.getCachedPosts(),
+              builder: (context, cacheSnapshot) {
+                if (cacheSnapshot.connectionState == ConnectionState.done && cacheSnapshot.hasData) {
+                  return ListView.builder(
+                    itemCount: cacheSnapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      Post post = cacheSnapshot.data![index];
+                      return PostWidget(post: post);
+                    },
+                  );
+                } else {
+                  return Center(child: Text("Failed to load posts."));
+                }
+              },
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text("No posts available."));
           } else {
+            database.cachePosts(snapshot.data!);
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {

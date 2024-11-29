@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginPage.dart';
 
 class AccountPage extends StatefulWidget {
@@ -9,17 +11,36 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final TextEditingController _phoneController = TextEditingController();
 
+  //local storage
+  Future<void> saveLanguagePreference(String languageCode) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('preferred_language', languageCode);
+  }
+
+
+  Future<String?> loadLanguagePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('preferred_language');
+  }
+
+
+  Future<void> _changeLanguage(String languageCode) async {
+    await saveLanguagePreference(languageCode); 
+    await FlutterI18n.refresh(context, Locale(languageCode)); // Change the language
+    setState(() {}); 
+  }
+
   // Function to show dialog for adding phone number
   void _showPhoneDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Phone Number'),
+          title: Text(FlutterI18n.translate(context, "account.add_number")),
           content: TextField(
             controller: _phoneController,
             decoration: InputDecoration(
-              labelText: 'Enter Phone Number',
+              labelText: FlutterI18n.translate(context, "account.phone_number"),
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.phone,
@@ -29,7 +50,7 @@ class _AccountPageState extends State<AccountPage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: Text(FlutterI18n.translate(context, "button_label.cancel")),
             ),
             TextButton(
               onPressed: () {
@@ -37,7 +58,7 @@ class _AccountPageState extends State<AccountPage> {
                 print('Phone number saved: ${_phoneController.text}');
                 Navigator.of(context).pop(); // Close the dialog after saving
               },
-              child: Text('Save'),
+              child: Text(FlutterI18n.translate(context, "button_label.save")),
             ),
           ],
         );
@@ -51,14 +72,14 @@ class _AccountPageState extends State<AccountPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Logout'),
-          content: Text('Are you sure you want to log out?'),
+          title: Text(FlutterI18n.translate(context, "account.logout")),
+          content: Text(FlutterI18n.translate(context, "account.logout_confirmation")),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: Text(FlutterI18n.translate(context, "button_label.cancel")),
             ),
             TextButton(
               onPressed: () {
@@ -68,17 +89,16 @@ class _AccountPageState extends State<AccountPage> {
                 // Reset the navigation stack and go to the LoginPage
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => LoginPage()),
-                      (route) => false, // Remove all routes from the stack
+                  (route) => false, // Remove all routes from the stack
                 );
               },
-              child: Text('Logout'),
+              child: Text(FlutterI18n.translate(context, "button_label.logout")),
             ),
           ],
         );
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -88,17 +108,17 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Email: user@example.com'), // Replace with dynamic email
+            Text('${FlutterI18n.translate(context, "account.email")} user@example.com'), // Replace with dynamic email
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _showPhoneDialog, // Show the dialog when clicked
-              child: Text('Add Number'),
+              child: Text(FlutterI18n.translate(context, "account.add_number")),
             ),
             SizedBox(height: 20),
             TextField(
               controller: _phoneController,
               decoration: InputDecoration(
-                labelText: 'Phone Number',
+                labelText: FlutterI18n.translate(context, "account.phone_number"),
                 border: OutlineInputBorder(),
               ),
               readOnly: true, // Make the text field read-only, phone number is updated via dialog
@@ -106,7 +126,23 @@ class _AccountPageState extends State<AccountPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _showLogoutDialog, // Show logout confirmation dialog
-              child: Text('Logout'),
+              child: Text(FlutterI18n.translate(context, "account.logout")),
+            ),
+            SizedBox(height: 30),
+            // Language Switcher Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _changeLanguage('en'), // Switch to English
+                  child: Text("English"),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () => _changeLanguage('fr'), // Switch to French
+                  child: Text("Français"),
+                ),
+              ],
             ),
           ],
         ),

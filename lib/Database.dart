@@ -6,6 +6,7 @@ import 'package:location/location.dart' as deviceLocation;
 import 'package:final_project/map/Location.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Database{
@@ -86,14 +87,23 @@ class Database{
   */
     // Fetch posts from an API
   Future<List<Post>> fetchPosts({int limit = 10, int offset = 0}) async {
-    var response = await http.get(Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'));//link to our firebase project
-    if (response.statusCode == 200) {
-      List postItems = jsonDecode(response.body);
-      return postItems.map((item) => Post.fromMap(item)).toList();
-    } else {
-      throw Exception('Failed to load posts');
+    try {
+        var response = await http.get(
+            Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api?limit=$limit&offset=$offset')
+        );
+        if (response.statusCode == 200) {
+            return (jsonDecode(response.body) as List)
+                .map((item) => Post.fromMap(item))
+                .toList();
+        } else {
+            throw Exception('Failed to fetch posts: ${response.statusCode}');
+        }
+    } catch (e) {
+        print(e);
+        throw Exception('Network error: Unable to fetch posts');
     }
   }
+
 
   // Add a post to the API
   Future<void> addPost(Post post) async {
@@ -125,5 +135,21 @@ class Database{
     if (response.statusCode != 200) {
       throw Exception('Failed to delete post');
     }
+  }
+
+  Future<void> cachePosts(List<Post> posts) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('cachedPosts', jsonEncode(posts.map((e) => e.toMap()).toList()));
+  }
+
+  Future<List<Post>> getCachedPosts() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? data = prefs.getString('cachedPosts');
+      if (data != null) {
+          return (jsonDecode(data) as List)
+              .map((item) => Post.fromMap(item))
+              .toList();
+      }
+      return [];
   }
 }
