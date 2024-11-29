@@ -201,15 +201,27 @@ class _MapPage extends State<MapPage>{
                 padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-220),
                 child:IconButton(
                   onPressed: () async{
-                    Position pos = await getCurrentPosition();
                       if(currentLat!= null && currentLng!=null){
+                        Position pos = await getCurrentPosition();
                         double lat = currentLat!;
                         double lng = currentLng!;
                         setState(() {
                           print("NAVIGATE: ${(pos.latitude,pos.longitude,lat,lng)}");
                           map = Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
                         });
-                      }},
+                      }
+                      else{
+                        showDialog(context: (context), builder: (context)=>
+                          AlertDialog(
+                            title: const Text("Select a location first"),
+                            actions: [
+                              TextButton(onPressed: ()=>Navigator.of(context).pop(),
+                                  child: const Text("OK"))
+                            ],
+                          )
+                        );
+                      }
+                      },
                   icon: const Icon(Icons.assistant_direction,size: 30,),),),
               Container(
                 padding: EdgeInsets.only(top:MediaQuery.sizeOf(context).height-265),
