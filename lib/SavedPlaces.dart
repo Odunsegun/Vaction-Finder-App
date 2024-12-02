@@ -71,7 +71,12 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
       itemCount: savedPlaces.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(savedPlaces[index].$2),
+          title: Row(
+            children: [
+              Text(savedPlaces[index].$2),
+              // TextButton(onPressed: onPressed, child: Text("Navigate"))
+            ],
+          ),
         );
       },
     );

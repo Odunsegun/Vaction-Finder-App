@@ -5,7 +5,8 @@ import '../map/Location.dart';
 
 class PostFormPage extends StatefulWidget {
   final String? postId; 
-  final Post? post;     
+  final Post? post;
+  // var
 
   PostFormPage({this.postId, this.post});
 

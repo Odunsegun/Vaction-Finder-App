@@ -1,13 +1,17 @@
+import 'dart:convert';
+
 import 'package:final_project/Database.dart';
+import 'package:final_project/post/PostFormPage.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/post/PostPage.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_places_flutter/model/place_type.dart';
 import 'package:google_places_flutter/model/prediction.dart';
+import 'package:http/http.dart';
 import 'package:latlong2/latlong.dart';
 import '../Account.dart';
-import 'Map.dart';
+import 'Map.dart' as MapClass;
 import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:location/location.dart' as deviceLocation;
 import 'package:final_project/map/Location.dart';
@@ -31,12 +35,23 @@ class _MapPage extends State<MapPage>{
   String? currentPlaceID = "";
   double deviceLat = 43.94529387752341;
   double deviceLong = -78.89694830522029;
-  late Map map;
+  late MapClass.Map map;
   (double,double,double,double)? path;
 
   Database database = Database();
 
   List<Marker> recommendedLocationMarkers = [];//list of location markers
+
+  Future<String> getClosestLocation(double lat, double lng) async{
+    String str = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
+        'location=$lat%2C$lng'
+        '&key=AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc'
+        '&rankby=distance';
+    Response response = await get(Uri.parse(str));
+    Map<String,dynamic> json = jsonDecode(response.body);
+    print(json['results'][0]["name"]);
+    return json['results'][0]["name"];
+  }
 
   Future<void> fetchAndDisplayRecommendedLocations(String type) async {
     List<Location> locations = await database.getRecommendedLocations(type);
@@ -55,6 +70,7 @@ class _MapPage extends State<MapPage>{
   Future<void> mapTapped(double lat,double long) async {
     currentLat = lat;
     currentLng = long;
+    currentLoc = await getClosestLocation(lat, long);
     setState(() {
 
     });
@@ -72,7 +88,7 @@ class _MapPage extends State<MapPage>{
     super.initState();
     mapController = MapController();
     fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    map = Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
+    map = MapClass.Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
   }
 
   Future<Position> getCurrentPosition() async{
@@ -207,7 +223,7 @@ class _MapPage extends State<MapPage>{
                         double lng = currentLng!;
                         setState(() {
                           print("NAVIGATE: ${(pos.latitude,pos.longitude,lat,lng)}");
-                          map = Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
+                          map = MapClass.Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
                         });
                       }
                       else{
@@ -228,12 +244,25 @@ class _MapPage extends State<MapPage>{
                 child:IconButton(
                   onPressed: () async {
                     Position pos = await getCurrentPosition();
+                    currentLoc = await getClosestLocation(pos.latitude, pos.longitude);
                     setState(() {
                       mapController.move(LatLng(pos.latitude,pos.longitude), 18.5);
                       print("LAT = $deviceLat, LONG = $deviceLong");
                     });
                   },
                   icon: const Icon(Icons.my_location,size: 30,),),),
+              Container(
+                padding: EdgeInsets.only(
+                    top:MediaQuery.sizeOf(context).height-265,
+                    left: MediaQuery.sizeOf(context).width-70
+                ),
+                child: IconButton(onPressed: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context)=>PostFormPage())
+                  );
+                }, icon: Icon(Icons.add_box_outlined, size: 30,)),
+              )
               ]
           ),
         ],
