@@ -42,7 +42,7 @@ class _MapPage extends State<MapPage>{
 
   List<Marker> recommendedLocationMarkers = [];//list of location markers
 
-  Future<String> getClosestLocation(double lat, double lng) async{
+  Future<(dynamic,dynamic)?> getClosestLocation(double lat, double lng) async{
     String str = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
         'location=$lat%2C$lng'
         '&key=AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc'
@@ -50,7 +50,7 @@ class _MapPage extends State<MapPage>{
     Response response = await get(Uri.parse(str));
     Map<String,dynamic> json = jsonDecode(response.body);
     print(json['results'][0]["name"]);
-    return json['results'][0]["name"];
+    return (json['results'][0]["name"],json['results'][0]["place_id"]);
   }
 
   Future<void> fetchAndDisplayRecommendedLocations(String type) async {
@@ -70,7 +70,9 @@ class _MapPage extends State<MapPage>{
   Future<void> mapTapped(double lat,double long) async {
     currentLat = lat;
     currentLng = long;
-    currentLoc = await getClosestLocation(lat, long);
+    var location = (await getClosestLocation(lat, long));
+    currentLoc = location?.$1;
+    currentPlaceID = location?.$2;
     setState(() {
 
     });
@@ -138,6 +140,7 @@ class _MapPage extends State<MapPage>{
                     
                     widget.user.places.add(currentPlaceID!);
                     database.addBookmark(widget.user);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Bookmarked Location."),elevation: 100,));
                   }
                   else{
                     print('NOT BOOKMARKED..................');
@@ -244,7 +247,9 @@ class _MapPage extends State<MapPage>{
                 child:IconButton(
                   onPressed: () async {
                     Position pos = await getCurrentPosition();
-                    currentLoc = await getClosestLocation(pos.latitude, pos.longitude);
+                    var location = (await getClosestLocation(pos.latitude, pos.longitude));
+                    currentLoc = location?.$1;
+                    currentPlaceID = location?.$2;
                     setState(() {
                       mapController.move(LatLng(pos.latitude,pos.longitude), 18.5);
                       print("LAT = $deviceLat, LONG = $deviceLong");
