@@ -6,9 +6,9 @@ import '../map/Location.dart';
 class PostFormPage extends StatefulWidget {
   final String? postId; 
   final Post? post;
-  // var
+  Location? location;
 
-  PostFormPage({this.postId, this.post});
+  PostFormPage({this.postId, this.post,this.location = null});
 
   @override
   _PostFormPageState createState() => _PostFormPageState();
@@ -80,7 +80,7 @@ class _PostFormPageState extends State<PostFormPage> {
                   String userID = "UserID"; // Replace with actual user ID
                   Post newPost = Post(
                     userID: userID,
-                    location: Location("Location", 43.0, -79.0),
+                    location: widget.location!,
                     description: descriptionController.text,
                   );
 

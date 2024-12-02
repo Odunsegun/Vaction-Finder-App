@@ -225,7 +225,6 @@ class _MapPage extends State<MapPage>{
                         double lat = currentLat!;
                         double lng = currentLng!;
                         setState(() {
-                          print("NAVIGATE: ${(pos.latitude,pos.longitude,lat,lng)}");
                           map = MapClass.Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
                         });
                       }
@@ -262,10 +261,15 @@ class _MapPage extends State<MapPage>{
                     left: MediaQuery.sizeOf(context).width-70
                 ),
                 child: IconButton(onPressed: (){
+                if(currentLat!=null&&currentLoc!=null&&currentLng!=null){
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context)=>PostFormPage())
+                      MaterialPageRoute(builder: (context)=>PostFormPage(location: Location(currentLoc!,currentLat!,currentLng!),))
                   );
+                }
+                else{
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Select location first before posting."),elevation: 100,));
+                }
                 }, icon: Icon(Icons.add_box_outlined, size: 30,)),
               )
               ]
