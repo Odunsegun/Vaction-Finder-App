@@ -5,6 +5,10 @@ import 'PostFormPage.dart';
 import 'package:final_project/Database.dart';
 
 class PostPage extends StatefulWidget{
+  var user;
+
+  PostPage(this.user,{super.key});
+
   @override
   State<StatefulWidget> createState() => _PostPage();
 
@@ -73,12 +77,14 @@ class _PostPage extends State<PostPage>{
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PostFormPage(),
-            ),
-          );
+          setState(() {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PostFormPage(),
+              ),
+            );
+          });
         },
         child: Icon(Icons.add),
       ),

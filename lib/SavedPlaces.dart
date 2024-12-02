@@ -32,7 +32,8 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
     // savedPlaces = prefs.getStringList('savedPlaces') ?? [];
     savedPlaces = (await database.getSavedLocations(widget.user))!;
     var url = 'maps.googleapis.com';
-    List<dynamic> result = [];
+    List<(String,dynamic)> result = [];
+    int i = 0;
     for(var item in savedPlaces){
       if(item != ""){
         String it = item.toString();
@@ -44,7 +45,8 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
         final response = await get(Uri.parse(str));
         Map<String,dynamic> json = jsonDecode(response.body);
         // print(json['result']['name']);
-        result.add(json['result']['name']);
+        result.add((savedPlaces[i],json['result']['name']));
+        i++;
       }
     }
     savedPlaces = result;
@@ -69,7 +71,7 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
       itemCount: savedPlaces.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(savedPlaces[index]),
+          title: Text(savedPlaces[index].$2),
         );
       },
     );

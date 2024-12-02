@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pages = [
       MapPage(widget.user),
-      PostPage(),
+      PostPage(widget.user),
       SavedPlacesPage(widget.user.username),
       AccountPage(),
     ];

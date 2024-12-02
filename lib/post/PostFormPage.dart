@@ -57,6 +57,10 @@ class _PostFormPageState extends State<PostFormPage> {
               controller: descriptionController,
               decoration: InputDecoration(labelText: "Description"),
             ),
+            // TextField(
+            //   controller: ,
+            //   decoration: InputDecoration(),
+            // )
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {

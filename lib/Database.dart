@@ -137,14 +137,15 @@ class Database{
 
   // Add a post to the API
   Future<void> addPost(Post post) async {
-    var response = await http.post(
-      Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(post.toMap()),
-    );
-    if (response.statusCode != 201) {
-      throw Exception('Failed to add post');
-    }
+    // var response = await http.post(
+    //   Uri.parse('https://mobile-final-c33c5.cloudfunctions.net/api'),
+    //   headers: {"Content-Type": "application/json"},
+    //   body: jsonEncode(post.toMap()),
+    // );
+    // if (response.statusCode != 201) {
+    //   throw Exception('Failed to add post');
+    // }
+    await database.collection('posts').add(post.toMap());
   }
 
   // Update a post in the API
