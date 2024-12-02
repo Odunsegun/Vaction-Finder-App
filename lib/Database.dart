@@ -39,6 +39,17 @@ class Database{
     }
     return null;
   }
+  Future<Account?> getUserNoPass(String username) async{
+    var snapshots = await database.collection("users").where('username',isEqualTo: username).get();
+    for(var doc in snapshots.docs){
+      print(doc.data());
+      if(doc.data() == null){return null;}
+      return Account.fromMap(doc.data(), doc.reference);
+      // return Account("email", "password");
+      // return Account.fromMap(doc.data());
+    }
+    return null;
+  }
 
   Future<void> insertUser(Account acc) async{
     await database.collection('users').add(
@@ -58,6 +69,25 @@ class Database{
   Future<void> addBookmark(Account account) async{
     // print("${reference.get()}");
     await account.reference?.update(account.toMap());
+  }
+
+  Future<List<dynamic>?> getSavedLocations(String user) async {
+    var snapshots = await database.collection('users').where('username', isEqualTo: user).get();
+    // print("snapshots = ${snapshots.size}");
+    for (var doc in snapshots.docs){
+      // print("${doc.get('places')}");
+      // for(var str in doc.get('places')){
+      //   print(str);
+      // }
+      print(doc.get('places'));
+      // print(doc.get('places') as List<String>);
+      List<dynamic> result = doc.get('places');
+      print("test $result");
+      // print(type)
+      return result;
+    }
+    print("RETURNED NULL");
+    return null;
   }
 
   Future<List<Location>> getRecommendedLocations(String type) async {

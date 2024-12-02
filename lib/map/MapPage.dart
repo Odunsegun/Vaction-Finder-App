@@ -117,7 +117,7 @@ class _MapPage extends State<MapPage>{
                   left: MediaQuery.sizeOf(context).width-75
                 ),
                 child:IconButton(onPressed: () {
-                  if(currentPlaceID!.isNotEmpty){
+                  if(currentPlaceID!.isNotEmpty /*|| currentLat != null || currentLng != null*/){
                     print('Bookmarked...................');
                     
                     widget.user.places.add(currentPlaceID!);

@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'Database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
+import 'package:http/http.dart';
 
 class SavedPlacesPage extends StatefulWidget {
   String user;
@@ -12,25 +16,51 @@ class SavedPlacesPage extends StatefulWidget {
 }
 
 class _SavedPlacesPage extends State<SavedPlacesPage>{
-   List<String> savedPlaces = [];
+   List<dynamic> savedPlaces = [];
+   Database database = Database();
 
-  Future<void> savePlace(String placeId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    savedPlaces.add(placeId);
-    prefs.setStringList('savedPlaces', savedPlaces);
-
-    //database.addBookmark(widget.user, placeId); <-- to sync with Firestore
-  }
+  // Future<void> savePlace(String placeId) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   savedPlaces.add(placeId);
+  //   prefs.setStringList('savedPlaces', savedPlaces);
+  //
+  //   //database.addBookmark(widget.user, placeId); <-- to sync with Firestore
+  // }
 
   Future<void> loadSavedPlaces() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    savedPlaces = prefs.getStringList('savedPlaces') ?? [];
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // savedPlaces = prefs.getStringList('savedPlaces') ?? [];
+    savedPlaces = (await database.getSavedLocations(widget.user))!;
+    var url = 'maps.googleapis.com';
+    List<dynamic> result = [];
+    for(var item in savedPlaces){
+      if(item != ""){
+        String it = item.toString();
+        // Uri uri = Uri.https(url,'maps/api/place/details/json?fields=name&place_id=$it&key=AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc');
+        // Uri uri = Uri.https(url, 'maps/api/place/details/json');
+        String str = 'https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=$it&key=AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc';
+        // Uri uri = Uri.https(Uri.parse(str));
+        // result.add(await get(Uri.parse(str)));
+        final response = await get(Uri.parse(str));
+        Map<String,dynamic> json = jsonDecode(response.body);
+        // print(json['result']['name']);
+        result.add(json['result']['name']);
+      }
+    }
+    savedPlaces = result;
+    setState(() {
+
+    });
   }
+
+
 
   @override
   void initState() {
     super.initState();
-    loadSavedPlaces(); 
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      loadSavedPlaces();
+    });
   }
 
   @override
@@ -44,4 +74,47 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
       },
     );
   }
+  //  @override
+  //  Widget build(BuildContext context) {
+  //    return FutureBuilder(
+  //       future: database.getSavedLocations(widget.user), builder: (context,snapshot){
+  //         if(snapshot.connectionState == ConnectionState.done){
+  //           print("snap = ${snapshot}");
+  //           return ListView.builder(itemCount: snapshot.data?.length, itemBuilder: (context,index){
+  //             return Text(snapshot.toString());
+  //           },);
+  //         }
+  //         else{
+  //           return CircularProgressIndicator();
+  //         }
+  //    },
+  //    );
+  //  }
+  //  @override
+  //  Widget build(BuildContext context) {
+  //    return FutureBuilder(
+  //      future: database.getUserNoPass(widget.user), builder: (context,snapshot){
+  //      // print("snap = ${snapshot}");
+  //      print("RETURNED NULL");
+  //      if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
+  //        // List<String>? list = snapshot.data;
+  //        print("TEST");
+  //        return ListView.builder(itemCount: snapshot.data?.places.length, itemBuilder: (context,index){
+  //
+  //          print(Uri.https("https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJF7QkuDsDLz4R0rJ4SsxFl9w&key=AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc)"));
+  //          return Text(snapshot.data?.places[index]);
+  //        },);
+  //      }
+  //      else{
+  //        return CircularProgressIndicator();
+  //      }
+  //    },
+  //    );}
+  // @override
+  // Widget build(BuildContext context){
+  //   return Lis
+  // }
+
+
+
 }
