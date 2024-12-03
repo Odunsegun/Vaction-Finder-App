@@ -2,28 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:final_project/Database.dart';
 import 'Post.dart';
 import '../map/Location.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
+import 'package:google_places_flutter/model/prediction.dart';
+import 'package:google_places_flutter/model/place_type.dart';
 
 class PostFormPage extends StatefulWidget {
-  final String? postId; 
+  final String? postId;
   final Post? post;
-  // var
 
   PostFormPage({this.postId, this.post});
 
   @override
   _PostFormPageState createState() => _PostFormPageState();
 }
-//edit and add posts
+
 class _PostFormPageState extends State<PostFormPage> {
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
   final Database database = Database();
+  String? currentLocation;
+  String? currentPlaceID;
 
   @override
   void initState() {
     super.initState();
-    
     if (widget.post != null) {
       descriptionController.text = widget.post!.description ?? "";
+      currentLocation = widget.post!.location?.name ?? "";
     }
   }
 
@@ -31,9 +36,6 @@ class _PostFormPageState extends State<PostFormPage> {
     await database.addPost(post);
   }
 
-  /*Future<void> updatePost(String postId, Map<String, dynamic> updatedData) async {
-    await database.updatePost(postId, post);
-  }*/
   Future<void> updatePost(Post post) async {
     await database.updatePost(post.id!, post);
   }
@@ -54,23 +56,50 @@ class _PostFormPageState extends State<PostFormPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Google Places Autocomplete TextField for location
+            GooglePlaceAutoCompleteTextField(
+              textEditingController: locationController,
+              googleAPIKey: "AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc",
+              countries: ['ca'],
+              // isLatLngRequired: true,
+              inputDecoration: InputDecoration(
+                labelText: 'Search Location',
+                prefixIcon: Icon(Icons.search),
+              ),
+              getPlaceDetailWithLatLng: (Prediction prediction) {
+                setState(() {
+                  currentLocation = prediction.description;
+                  currentPlaceID = prediction.placeId;
+                });
+              },
+              itemClick: (Prediction prediction) {
+                setState(() {
+                  locationController.text = prediction.description!;
+                  currentLocation = prediction.description;
+                  currentPlaceID = prediction.placeId;
+                });
+              },
+              placeType: PlaceType.address,
+            ),
+
+            SizedBox(height: 20),
+
+            // Description TextField
             TextField(
               controller: descriptionController,
               decoration: InputDecoration(labelText: "Description"),
             ),
-            // TextField(
-            //   controller: ,
-            //   decoration: InputDecoration(),
-            // )
+
             SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: () async {
                 if (isEditing) {
-                  // Create an updated Post object
+                  // Create an updated Post object with new location and description
                   Post updatedPost = Post(
-                    userID: widget.post!.userID, 
-                    location: widget.post!.location, 
-                    description: descriptionController.text, 
+                    userID: widget.post!.userID,
+                    location: Location(currentLocation ?? "", 43.0, -79.0),
+                    description: descriptionController.text,
                   );
 
                   // Call updatePost with the updated Post object
@@ -80,7 +109,7 @@ class _PostFormPageState extends State<PostFormPage> {
                   String userID = "UserID"; // Replace with actual user ID
                   Post newPost = Post(
                     userID: userID,
-                    location: Location("Location", 43.0, -79.0),
+                    location: Location(currentLocation ?? "Unknown", 43.0, -79.0),
                     description: descriptionController.text,
                   );
 
@@ -119,7 +148,7 @@ class _PostFormPageState extends State<PostFormPage> {
                   // If confirmed, delete the post and go back
                   if (confirmDelete == true) {
                     await deletePost(widget.postId!);
-                    if (context.mounted) Navigator.pop(context); 
+                    if (context.mounted) Navigator.pop(context);
                   }
                 },
                 style: ElevatedButton.styleFrom(iconColor: Colors.red),
@@ -132,4 +161,3 @@ class _PostFormPageState extends State<PostFormPage> {
     );
   }
 }
-
