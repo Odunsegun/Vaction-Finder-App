@@ -1,7 +1,9 @@
+import 'package:final_project/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'LoginPage.dart';
+import 'package:flutter/services.dart';
+import 'Sqflite.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -9,56 +11,59 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  String? _email;
+  String? _phone;
 
-  //local storage
-  Future<void> saveLanguagePreference(String languageCode) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('preferred_language', languageCode);
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Load data from SQLite on initialization
   }
 
-
-  Future<String?> loadLanguagePreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('preferred_language');
+  // Fetch data from the database
+  Future<void> _loadUserData() async {
+    final userData = await DatabaseHelper().getUserData();
+    setState(() {
+      _email = userData != null?['email']:
+      _phone = userData?['phone'];
+    });
   }
 
-
-  Future<void> _changeLanguage(String languageCode) async {
-    await saveLanguagePreference(languageCode); 
-    await FlutterI18n.refresh(context, Locale(languageCode)); // Change the language
-    setState(() {}); 
-  }
-
-  // Function to show dialog for adding phone number
-  void _showPhoneDialog() {
+  // Function to show dialog for editing email
+  void _showEmailDialog() {
+    _emailController.text = _email ?? '';
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(FlutterI18n.translate(context, "account.add_number")),
+          title: Text(FlutterI18n.translate(context, "Email")),
           content: TextField(
-            controller: _phoneController,
+            controller: _emailController,
             decoration: InputDecoration(
-              labelText: FlutterI18n.translate(context, "account.phone_number"),
+              labelText: FlutterI18n.translate(context, "Email"),
               border: OutlineInputBorder(),
             ),
-            keyboardType: TextInputType.phone,
+            keyboardType: TextInputType.emailAddress,
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
-              child: Text(FlutterI18n.translate(context, "button_label.cancel")),
+              child: Text(FlutterI18n.translate(context, "Cancel")),
             ),
             TextButton(
-              onPressed: () {
-                // Save phone number functionality to be implemented
-                print('Phone number saved: ${_phoneController.text}');
-                Navigator.of(context).pop(); // Close the dialog after saving
+              onPressed: () async {
+                // Save the updated email
+                await DatabaseHelper().updateUserData(_emailController.text, _phone ?? '');
+                setState(() {
+                  _email = _emailController.text; // Update UI
+                });
+                Navigator.of(context).pop();
               },
-              child: Text(FlutterI18n.translate(context, "button_label.save")),
+              child: Text(FlutterI18n.translate(context, "Save")),
             ),
           ],
         );
@@ -66,33 +71,83 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
+  // Function to show dialog for editing phone number
+
+  void _showPhoneDialog() {
+    _phoneController.text = _phone ?? ''; // Pre-fill with existing number
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(FlutterI18n.translate(context, "Phone Number")),
+          content: TextField(
+            controller: _phoneController,
+            decoration: InputDecoration(
+              labelText: FlutterI18n.translate(context, "Phone Number"),
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.number, // Numeric keyboard
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Restrict input to numbers
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(FlutterI18n.translate(context, "Cancel")),
+            ),
+            TextButton(
+              onPressed: () async {
+                final newPhone = _phoneController.text;
+                if (newPhone.isEmpty) {
+                  // Show error if no input
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(FlutterI18n.translate(context, "Only enter numbers")),
+                    ),
+                  );
+                  return;
+                }
+                // Save the updated phone number
+                await DatabaseHelper().updateUserData(_email ?? '', newPhone);
+                setState(() {
+                  _phone = newPhone; // Update UI
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(FlutterI18n.translate(context, "Save")),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   // Function to show logout confirmation dialog
   void _showLogoutDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(FlutterI18n.translate(context, "account.logout")),
-          content: Text(FlutterI18n.translate(context, "account.logout_confirmation")),
+          title: Text(FlutterI18n.translate(context, "Logout")),
+          content: Text(FlutterI18n.translate(context, "Confirm you want to log out")),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text(FlutterI18n.translate(context, "button_label.cancel")),
+              child: Text(FlutterI18n.translate(context, "Cancel")),
             ),
             TextButton(
               onPressed: () {
-                // Close the dialog
-                Navigator.of(context).pop();
-
-                // Reset the navigation stack and go to the LoginPage
+                Navigator.of(context).pop(); // Close the dialog
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                  (route) => false, // Remove all routes from the stack
+                  MaterialPageRoute(builder: (context) => LoginPage()), // Redirect to LoginPage
+                      (route) => false, // Remove all routes from stack
                 );
               },
-              child: Text(FlutterI18n.translate(context, "button_label.logout")),
+              child: Text(FlutterI18n.translate(context, "Logout")),
             ),
           ],
         );
@@ -108,25 +163,29 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('${FlutterI18n.translate(context, "account.email")} user@example.com'), // Replace with dynamic email
+            ElevatedButton(
+              onPressed: _showEmailDialog, // Show the dialog when clicked
+              child: Text(FlutterI18n.translate(context, "Email")),
+            ),
+            if (_email != null) // Display email if available
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text('${FlutterI18n.translate(context, "Email")}: $_email'),
+              ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _showPhoneDialog, // Show the dialog when clicked
-              child: Text(FlutterI18n.translate(context, "account.add_number")),
+              onPressed: _showPhoneDialog,
+              child: Text(FlutterI18n.translate(context, "Phone Number")),
             ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _phoneController,
-              decoration: InputDecoration(
-                labelText: FlutterI18n.translate(context, "account.phone_number"),
-                border: OutlineInputBorder(),
+            if (_phone != null) // Display phone number if available
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text('${FlutterI18n.translate(context, "Phone Number")}: $_phone'),
               ),
-              readOnly: true, // Make the text field read-only, phone number is updated via dialog
-            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _showLogoutDialog, // Show logout confirmation dialog
-              child: Text(FlutterI18n.translate(context, "account.logout")),
+              child: Text(FlutterI18n.translate(context, "Logout")),
             ),
             SizedBox(height: 30),
             // Language Switcher Buttons
@@ -148,5 +207,20 @@ class _AccountPageState extends State<AccountPage> {
         ),
       ),
     );
+  }
+  Future<void> saveLanguagePreference(String languageCode) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('preferred_language', languageCode);
+  }
+
+
+  Future<String?> loadLanguagePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('preferred_language');
+  }
+  Future<void> _changeLanguage(String languageCode) async {
+    await saveLanguagePreference(languageCode);
+    await FlutterI18n.refresh(context, Locale(languageCode)); // Change the language
+    setState(() {});
   }
 }

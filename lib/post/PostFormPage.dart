@@ -116,7 +116,7 @@ class _PostFormPageState extends State<PostFormPage> {
                   Post newPost = Post(
                     userID: userID,
                     location: Location(currentLocation ?? "Unknown", 43.0, -79.0),
-                    location: widget.location!,
+                    // location: widget.location!,
                     description: descriptionController.text,
                   );
 
