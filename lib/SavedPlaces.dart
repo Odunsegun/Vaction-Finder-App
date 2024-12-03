@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:final_project/Account.dart';
+import 'package:final_project/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'Database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +9,7 @@ import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:http/http.dart';
 
 class SavedPlacesPage extends StatefulWidget {
-  String user;
+  Account user;
   SavedPlacesPage(this.user,{super.key});
 
   @override
@@ -30,7 +32,7 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
   Future<void> loadSavedPlaces() async {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     // savedPlaces = prefs.getStringList('savedPlaces') ?? [];
-    savedPlaces = (await database.getSavedLocations(widget.user))!;
+    savedPlaces = (await database.getSavedLocations(widget.user.username))!;
     var url = 'maps.googleapis.com';
     List<(String,dynamic)> result = [];
     int i = 0;
@@ -56,6 +58,19 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
   }
 
 
+   Future<(double,double)> getLocationsFromID(String id) async{
+    print(id);
+      String str = 'https://maps.googleapis.com/maps/api/place/details/json?'
+          'fields=geometry'
+          '&place_id=$id'
+          '&key=AIzaSyCu_L7YZRnt4IWMurIRZnIijJJF3nfv6Wc';
+      final response = await get(Uri.parse(str));
+      Map<String,dynamic> json = jsonDecode(response.body);
+      print(json['result']['geometry']['location']);
+      return (json['result']['geometry']['location']['lat'] as double,
+      json['result']['geometry']['location']['lng'] as double);
+   }
+
 
   @override
   void initState() {
@@ -74,7 +89,13 @@ class _SavedPlacesPage extends State<SavedPlacesPage>{
           title: Row(
             children: [
               Text(savedPlaces[index].$2),
-              // TextButton(onPressed: onPressed, child: Text("Navigate"))
+              TextButton(onPressed: () async {
+                (double,double) loc = await getLocationsFromID(savedPlaces[index].$1);
+                print("TEST loc = $loc");
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (context)=>HomeScreen(widget.user, startLat: loc.$1,startLong: loc.$2))
+                );
+              }, child: Text("Navigate"))
             ],
           ),
         );

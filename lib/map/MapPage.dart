@@ -19,7 +19,9 @@ import 'package:final_project/map/Location.dart';
 
 class MapPage extends StatefulWidget{
   Account user;
-  MapPage(this.user, {super.key});
+  double? startLat;
+  double? startLong;
+  MapPage(this.user, {super.key,this.startLat,this.startLong});
 
 
   @override
@@ -90,7 +92,12 @@ class _MapPage extends State<MapPage>{
     super.initState();
     mapController = MapController();
     fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    map = MapClass.Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
+    if(widget.startLat != null && widget.startLong != null){
+      map = MapClass.Map(mapController,  mapTapped, curLat: widget.startLat!, curLong: widget.startLong!,path: path,);
+    }
+    else{
+      map = MapClass.Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
+    }
   }
 
   Future<Position> getCurrentPosition() async{
