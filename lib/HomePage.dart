@@ -7,7 +7,10 @@ import 'package:final_project/map/MapPage.dart';
 
 class HomeScreen extends StatefulWidget {
   Account user;
-  HomeScreen(this.user, {super.key});
+  double? startLat;
+  double? startLong;
+
+  HomeScreen(this.user, {super.key, this.startLat, this.startLong});
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -18,10 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState(){
     super.initState();
+    print("start lat = ${widget.startLat}");
     _pages = [
-      MapPage(widget.user),
+      widget.startLat == null || widget.startLong == null ?
+      MapPage(widget.user) : MapPage(widget.user,startLat: widget.startLat, startLong:widget.startLong),
       PostPage(widget.user),
-      SavedPlacesPage(widget.user.username),
+      SavedPlacesPage(widget.user),
       AccountPage(),
     ];
   }

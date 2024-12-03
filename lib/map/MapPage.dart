@@ -19,7 +19,9 @@ import 'package:final_project/map/Location.dart';
 
 class MapPage extends StatefulWidget{
   Account user;
-  MapPage(this.user, {super.key});
+  double? startLat;
+  double? startLong;
+  MapPage(this.user, {super.key,this.startLat,this.startLong});
 
 
   @override
@@ -90,7 +92,12 @@ class _MapPage extends State<MapPage>{
     super.initState();
     mapController = MapController();
     fetchAndDisplayRecommendedLocations("landmark"); //"landmark" would basically be the detour    print("path = $path >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    map = MapClass.Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
+    if(widget.startLat != null && widget.startLong != null){
+      map = MapClass.Map(mapController,  mapTapped, curLat: widget.startLat!, curLong: widget.startLong!,path: path,);
+    }
+    else{
+      map = MapClass.Map(mapController,  mapTapped, curLat: deviceLat, curLong: deviceLong,path: path,);
+    }
   }
 
   Future<Position> getCurrentPosition() async{
@@ -225,7 +232,6 @@ class _MapPage extends State<MapPage>{
                         double lat = currentLat!;
                         double lng = currentLng!;
                         setState(() {
-                          print("NAVIGATE: ${(pos.latitude,pos.longitude,lat,lng)}");
                           map = MapClass.Map(mapController, mapTapped, curLat: lat,curLong: lng,path: (pos.latitude,pos.longitude,lat,lng));
                         });
                       }
@@ -262,10 +268,15 @@ class _MapPage extends State<MapPage>{
                     left: MediaQuery.sizeOf(context).width-70
                 ),
                 child: IconButton(onPressed: (){
+                if(currentLat!=null&&currentLoc!=null&&currentLng!=null){
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context)=>PostFormPage())
+                      MaterialPageRoute(builder: (context)=>PostFormPage(location: Location(currentLoc!,currentLat!,currentLng!),))
                   );
+                }
+                else{
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Select location first before posting."),elevation: 100,));
+                }
                 }, icon: Icon(Icons.add_box_outlined, size: 30,)),
               )
               ]

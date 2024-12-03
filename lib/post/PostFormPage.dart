@@ -7,15 +7,16 @@ import 'package:google_places_flutter/model/prediction.dart';
 import 'package:google_places_flutter/model/place_type.dart';
 
 class PostFormPage extends StatefulWidget {
-  final String? postId;
+  final String? postId; 
   final Post? post;
+  Location? location;
 
-  PostFormPage({this.postId, this.post});
+  PostFormPage({this.postId, this.post,this.location = null});
 
   @override
   _PostFormPageState createState() => _PostFormPageState();
 }
-
+//edit and add posts
 class _PostFormPageState extends State<PostFormPage> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
@@ -26,9 +27,9 @@ class _PostFormPageState extends State<PostFormPage> {
   @override
   void initState() {
     super.initState();
+    
     if (widget.post != null) {
       descriptionController.text = widget.post!.description ?? "";
-      currentLocation = widget.post!.location?.name ?? "";
     }
   }
 
@@ -36,6 +37,9 @@ class _PostFormPageState extends State<PostFormPage> {
     await database.addPost(post);
   }
 
+  /*Future<void> updatePost(String postId, Map<String, dynamic> updatedData) async {
+    await database.updatePost(postId, post);
+  }*/
   Future<void> updatePost(Post post) async {
     await database.updatePost(post.id!, post);
   }
@@ -89,13 +93,15 @@ class _PostFormPageState extends State<PostFormPage> {
               controller: descriptionController,
               decoration: InputDecoration(labelText: "Description"),
             ),
-
+            // TextField(
+            //   controller: ,
+            //   decoration: InputDecoration(),
+            // )
             SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: () async {
                 if (isEditing) {
-                  // Create an updated Post object with new location and description
+                  // Create an updated Post object
                   Post updatedPost = Post(
                     userID: widget.post!.userID,
                     location: Location(currentLocation ?? "", 43.0, -79.0),
@@ -110,6 +116,7 @@ class _PostFormPageState extends State<PostFormPage> {
                   Post newPost = Post(
                     userID: userID,
                     location: Location(currentLocation ?? "Unknown", 43.0, -79.0),
+                    location: widget.location!,
                     description: descriptionController.text,
                   );
 
@@ -148,7 +155,7 @@ class _PostFormPageState extends State<PostFormPage> {
                   // If confirmed, delete the post and go back
                   if (confirmDelete == true) {
                     await deletePost(widget.postId!);
-                    if (context.mounted) Navigator.pop(context);
+                    if (context.mounted) Navigator.pop(context); 
                   }
                 },
                 style: ElevatedButton.styleFrom(iconColor: Colors.red),
@@ -161,3 +168,4 @@ class _PostFormPageState extends State<PostFormPage> {
     );
   }
 }
+
