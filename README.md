@@ -1,5 +1,7 @@
 Vacation Finder App 🏖️✈️
+
 Overview
+
 Vacation Finder is a trip planner and vacation spot discovery app built with Flutter. Users can plan trips, save places, and explore destinations recommended by others. The app integrates Firebase for backend services and uses geolocation APIs for mapping and location-based features.
 
 Features
@@ -18,6 +20,7 @@ Features
 🔥 Firebase Integration – Secure authentication, cloud database, and storage support.
 
 Tech Stack
+
 Frontend: Flutter (Dart)
 
 Backend: Firebase (Authentication, Firestore, Cloud Storage)
@@ -29,9 +32,6 @@ Database: Firestore & SQLite (local caching)
 Setup & Installation
 Clone the repo:
 
-bash
-Copy
-Edit
 git clone <your-repo-link>
 cd vacation-finder
 Install dependencies:
@@ -55,3 +55,4 @@ Teammates – Additional backend & frontend development
 
 License
 MIT License. Feel free to use and modify for personal or educational projects.
+
